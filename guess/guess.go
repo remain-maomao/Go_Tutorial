@@ -33,4 +33,13 @@ func main() {
 	}
 
 	fmt.Println("你的猜测是", guess)
+
+	// 实现判断逻辑
+	if guess > secretNumber {
+		fmt.Println("你猜的数字太大了，再小一点")
+	} else if guess < secretNumber {
+		fmt.Println("你猜的数字太小了，再大一点")
+	} else {
+		fmt.Println("你猜的数字刚刚好")
+	}
 }
