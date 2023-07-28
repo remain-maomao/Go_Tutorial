@@ -79,7 +79,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	// 防御式编程，检查响应的状态码
+	if resp.StatusCode != 200 {
+		fmt.Println("bad status code", resp.StatusCode, "body", string(bodyText))
+	}
 	// 将从服务器接受到的字节流形式的json数据反序列化到DictResponse对象中
 	var dictResponse DictResponse
 	err = json.Unmarshal(bodyText, &dictResponse)
