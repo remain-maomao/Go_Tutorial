@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 type DictRequest struct {
@@ -35,11 +36,11 @@ type DictResponse struct {
 	} `json:"dictionary"`
 }
 
-func main() {
+func query(word string) {
 	client := &http.Client{}
 
 	// 创建一个请求对象
-	request := DictRequest{TransType: "en2zh", Source: "pretty"}
+	request := DictRequest{TransType: "en2zh", Source: word}
 	// 将请求对象序列化为json字符串
 	buf, err := json.Marshal(request)
 	if err != nil {
@@ -94,4 +95,16 @@ func main() {
 	for _, explanation := range dictResponse.Dictionary.Explanations {
 		fmt.Println(explanation)
 	}
+}
+
+func main() {
+	if len(os.Args) != 2 {
+		fmt.Fprintf(os.Stderr, `usage: search <WORD>
+example: search pretty
+`)
+		os.Exit(1)
+	}
+
+	word := os.Args[1]
+	query(word)
 }
