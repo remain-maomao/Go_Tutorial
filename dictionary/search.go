@@ -1,16 +1,52 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"strings"
 )
+
+type DictRequest struct {
+	TransType string `json:"trans_type"`
+	Source    string `json:"source"`
+	UserId    string `json:"user_id"`
+}
+
+type DictResponse struct {
+	Rc   int `json:"rc"`
+	Wiki struct {
+	} `json:"wiki"`
+	Dictionary struct {
+		Prons struct {
+			EnUs string `json:"en-us"`
+			En   string `json:"en"`
+		} `json:"prons"`
+		Explanations []string      `json:"explanations"`
+		Synonym      []string      `json:"synonym"`
+		Antonym      []string      `json:"antonym"`
+		WqxExample   [][]string    `json:"wqx_example"`
+		Entry        string        `json:"entry"`
+		Type         string        `json:"type"`
+		Related      []interface{} `json:"related"`
+		Source       string        `json:"source"`
+	} `json:"dictionary"`
+}
 
 func main() {
 	client := &http.Client{}
-	var data = strings.NewReader(`{"trans_type":"en2zh","source":"pretty"}`)
+
+	// 创建一个请求对象
+	request := DictRequest{TransType: "en2zh", Source: "pretty"}
+	// 将请求对象序列化为json字符串
+	buf, err := json.Marshal(request)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var data = bytes.NewReader(buf)
 	req, err := http.NewRequest("POST", "https://lingocloud.caiyunapp.com/v1/dict", data)
 	if err != nil {
 		log.Fatal(err)
@@ -43,5 +79,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%s\n", bodyText)
+
+	// 将从服务器接受到的字节流形式的json数据反序列化到DictResponse对象中
+	var dictResponse DictResponse
+	err = json.Unmarshal(bodyText, &dictResponse)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// 打印结果
+	fmt.Println(dictResponse.Dictionary.Entry, "en-us", dictResponse.Dictionary.Prons.EnUs, "en", dictResponse.Dictionary.Prons.En)
+	for _, explanation := range dictResponse.Dictionary.Explanations {
+		fmt.Println(explanation)
+	}
 }
