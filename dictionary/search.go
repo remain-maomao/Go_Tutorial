@@ -99,9 +99,12 @@ func query(word string) {
 
 func main() {
 	if len(os.Args) != 2 {
-		fmt.Fprintf(os.Stderr, `usage: search <WORD>
+		_, err := fmt.Fprintf(os.Stderr, `usage: search <WORD>
 example: search pretty
 `)
+		if err != nil {
+			return
+		}
 		os.Exit(1)
 	}
 
